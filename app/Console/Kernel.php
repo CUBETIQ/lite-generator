@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+//        $schedule->exec("echo 1")->
         // $schedule->command('inspire')
         //          ->hourly();
     }
