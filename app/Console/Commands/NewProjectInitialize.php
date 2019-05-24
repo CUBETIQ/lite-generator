@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Base\BaseCommand;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 
-class NewProjectInitialize extends Command
+class NewProjectInitialize extends BaseCommand
 {
     /**
      * The name and signature of the console command.
@@ -19,7 +20,7 @@ class NewProjectInitialize extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Create New Laravel Project';
 
     /**
      * Create a new command instance.
@@ -46,16 +47,15 @@ class NewProjectInitialize extends Command
             $storage_projects->run();
         }
 
+        // Check If Project is Exist
         if(file_exists(storage_path("projects/$project_name"))){
             $this->error("Project Exist");
-            return;
+            return 1;
         }
 
-        $result = new Process("cd storage/projects && composer create-project --prefer-dist laravel/laravel $project_name");
-        $result->run(function ($type, $buffer) {
-            echo 'OUT > '.$buffer;
-        });
-        return $result;
+        $process=$this->processCommand("cd storage/projects && composer create-project --no-install --no-scripts --prefer-dist laravel/laravel $project_name");
+
+        return 0;
     }
 //
 //    /**
