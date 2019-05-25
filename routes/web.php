@@ -14,3 +14,16 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/test', "TestController@get");
+
+
+Route::get('/simple',function (){
+   config(['modules.generator.migration'=>\App\Modules\Generator\Migration\SimpleMigrationGenerator::class]) ;
+    dd(config("modules.generator.migration"));
+});
+
+Route::get('/other',function (){
+    config(['modules.generator.migration'=>\App\Modules\Generator\Migration\OtherMigrationClass::class]) ;
+    dd(config("modules.generator.migration"));
+});

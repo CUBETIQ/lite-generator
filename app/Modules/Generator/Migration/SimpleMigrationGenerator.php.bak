@@ -1,0 +1,97 @@
+<?php
+
+
+namespace App\Modules\Generator\Migration;
+
+use App\Base\BaseGenerator;
+use App\Base\BaseIGenerator;
+use App\Definitions\MigrationType;
+use App\Modules\Generator\Migration\IMigrationGenerator;
+use Carbon\Carbon;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+class SimpleMigrationGenerator extends BaseGenerator implements IMigrationGenerator
+{
+    public function parse(Collection $configs,String $project_name)
+    {
+        foreach ($configs as $table => $option) {
+            $this->GenerationMigration($project_name,$table,$option);
+        }
+    }
+
+    private function GenerationMigration($project_name,$table,$option)
+    {
+        $KeyAndValues=$this->GetKeyAndValueArray($option['columns'],$table);
+        dd($KeyAndValues);
+        $this->GenerateStub(
+            base_path('app/Stubs/DummyMigration.stub'),
+            $this->MigrationPath($project_name).Carbon::today()."_create_${table}_table.php",
+            [],
+            []
+        );
+    }
+
+
+
+    private function GenerateTable(String $table, array $config)
+    {
+        $basics=collect();
+        $uniques=collect();
+        $relationships=collect();
+        foreach ($config['columns'] as $column => $columns_option) {
+            $each_column=$this->GenerateTemplate($column, $columns_option);
+            $basics->add($each_column['basic']);
+            $uniques->add($each_column['unique']);
+        }
+        return $basics->merge($uniques);
+    }
+
+    private function GenerateTemplate(String $column, array $option)
+    {
+        $temp=[];
+
+        $temp["basic"]=$this->GetColumnsTemplate($option['type']);
+
+        $temp['unique']=$option['unique'] ?? false ?'$table->unique("'.$column.'")':"";
+
+        return $temp;
+    }
+
+    private function GetColumnsTemplate(String $type)
+    {
+        $template = "";
+        switch ($type) {
+            case MigrationType::VARCHAR:
+                $template = '$table->string({name},{length});';
+                break;
+            case MigrationType::DECIMAL:
+                $template='$table->decimal({name},{length},{scale});';
+                break;
+            case MigrationType::DATETIME:
+                $template='$table->datetime({name});';
+                break;
+            default:
+                throw new \Exception("None Type get");
+                break;
+        }
+        return $template;
+    }
+
+    public function MigrationPath($project_name)
+    {
+        return $this->SubprojectPath($project_name)."database/migration/";
+    }
+
+    private function GetKeyAndValueArray(array $config,String $class_name){
+        $caseClass=$this->GenerateClassCase($class_name);
+        dd($config);
+        $keys=array_merge([array_keys($caseClass),array_keys($config)]);
+        $values=Arr::collapse([array_values($caseClass),array_values($config)]);
+        return [
+            "keys"=>$keys,
+            "values"=>$values
+        ];
+    }
+}

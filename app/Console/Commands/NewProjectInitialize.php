@@ -57,6 +57,42 @@ class NewProjectInitialize extends BaseCommand
 
         return 0;
     }
+
+    public function temp_config(){
+        $config=[
+            "Invoices"=>[
+                "columns"=>[
+                    "Id"=>[
+                        "type"=>"increment",
+                    ],
+                    "Name"=>[
+                        "type"=>"varchar",
+                        "length"=>50,
+                        "nullable"=>true,
+                    ],
+                    "Price"=>[
+                        "type"=>"float"
+                    ],
+                    "Date"=>[
+                        "type"=>"decimal",
+                        "point"=>2,
+                        "digit"=>10
+                    ],
+                ],
+                "relationship"=>[
+                    "staff"=>[
+                        "type"=>"one_to_one"
+                    ],
+                    "products"=>[
+                        "type"=>"many_to_many"
+                    ],
+                    "invoice-details"=>[
+                        "type"=>"one_to_many"
+                    ]
+                ],
+            ]
+        ];
+    }
 //
 //    /**
 //     * No using , Use Symfony/Process instead

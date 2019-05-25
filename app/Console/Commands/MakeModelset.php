@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Base\BaseCommand;
+use App\Definitions\MigrationType;
+use App\Modules\Generator\Migration\IMigrationBaseGenerator;
 use Illuminate\Console\Command;
 
 class MakeModelset extends BaseCommand
@@ -22,12 +24,17 @@ class MakeModelset extends BaseCommand
     protected $description = 'Command description';
 
     /**
+     *  Migration Generator
+     */
+    private $migration;
+    /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(IMigrationBaseGenerator $mig)
     {
+        $this->migration=$mig;
         parent::__construct();
     }
 
@@ -38,6 +45,7 @@ class MakeModelset extends BaseCommand
      */
     public function handle()
     {
+        return $this->Generate();
         $project_name=$this->argument('name');
 
         if(!file_exists(storage_path("projects/$project_name"))){
@@ -45,9 +53,56 @@ class MakeModelset extends BaseCommand
             return 1;
         }
 
+        $model=$this->sub_artisan($project_name,"make:model Testing");
+        dd($model);
+        return 0;
+    }
+
+    public function Generate(){
+        $configs=$this->get_configs();
+
+        $this->migration->parse(collect($configs),"lara");
+
+        $this->info("Success");
+    }
+
+    public function generation_migration_row($config){
+
+    }
 
 
-//        $this->sub_artisan($project_name,"make:model",["name"=>"TestignPr"]);
-
+    public function get_configs(){
+        $config=[
+            "Invoices"=>[
+                "columns"=>[
+                    "name"=>[
+                        "type"=>MigrationType::VARCHAR,
+                        "length"=>50,
+                        "nullable"=>true,
+                        "unique"=>true
+                    ],
+                    "date"=>[
+                        "type"=>MigrationType::DATETIME
+                    ],
+                    "price"=>[
+                        "type"=>MigrationType::DECIMAL,
+                        "nullable"=>2,
+                        "unique"=>10
+                    ],
+                ],
+                "relationship"=>[
+                    "staff"=>[
+                        "type"=>"one_to_one"
+                    ],
+                    "products"=>[
+                        "type"=>"many_to_many"
+                    ],
+                    "invoice-details"=>[
+                        "type"=>"one_to_many"
+                    ]
+                ],
+            ]
+        ];
+        return $config;
     }
 }

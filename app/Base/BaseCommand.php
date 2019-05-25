@@ -23,13 +23,12 @@ class BaseCommand extends Command
         return $process;
     }
 //
-//    public function subproject_basedir(String $project_name){
-//        return storage_path('projects/'.$project_name);
-//    }
+    public function subproject_basedir(String $project_name){
+        return storage_path('projects/'.$project_name);
+    }
 //
-//    public function sub_artisan(String $project_name,String $command,array $parameters=[],String $outputBuffer=""){
-//        $temp = new Application($this->subproject_basedir($project_name));
-//        Artisan::setFacadeApplication($temp);
-//        Artisan::call($command,$parameters,$outputBuffer);
-//    }
+    public function sub_artisan(String $project_name,String $command){
+        $temp = $this->processCommand("php ".$this->subproject_basedir($project_name).'/artisan '.$command);
+        return $temp;
+    }
 }
